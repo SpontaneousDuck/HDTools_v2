@@ -29,37 +29,41 @@ namespace HDTools2
             InitializeComponent();
         }
 
-        public MainInterface(string uname)
+        public MainInterface(PowerShell shell, PSObject usr)
         {
             InitializeComponent();
             Closing += MainInterface_Closing;
-            PowerShellInstance = PowerShell.Create();
 
-            string script1 = "Set-ExecutionPolicy -Scope Process -ExecutionPolicy Unrestricted"; // the second command to know the ExecutionPolicy level
-            PowerShellInstance.AddScript(script1);
-            var someResult = PowerShellInstance.Invoke();
+            PowerShellInstance = shell;
+            adUser = usr;
 
-            PowerShellInstance.Commands.Clear();
+            //PowerShellInstance = PowerShell.Create();
 
-            string script = System.Text.Encoding.Default.GetString(global::HDTools2.Properties.Resources.ADResetPassword);
-            //script = script.Replace("\r\n", string.Empty).Replace("\n", string.Empty).Replace("\r", string.Empty);
-            PowerShellInstance.AddScript(script, false);
-            PowerShellInstance.Invoke();
-            PowerShellInstance.Commands.Clear();
+            //string script1 = "Set-ExecutionPolicy -Scope Process -ExecutionPolicy Unrestricted"; // the second command to know the ExecutionPolicy level
+            //PowerShellInstance.AddScript(script1);
+            //var someResult = PowerShellInstance.Invoke();
 
-            PowerShellInstance.AddCommand("GetWITUser").AddArgument(uname);
+            //PowerShellInstance.Commands.Clear();
 
-            // invoke execution on the pipeline (collecting output)
-            var PSOutput = PowerShellInstance.Invoke();
+            //string script = System.Text.Encoding.Default.GetString(global::HDTools2.Properties.Resources.ADResetPassword);
+            ////script = script.Replace("\r\n", string.Empty).Replace("\n", string.Empty).Replace("\r", string.Empty);
+            //PowerShellInstance.AddScript(script, false);
+            //PowerShellInstance.Invoke();
+            //PowerShellInstance.Commands.Clear();
 
-            // loop through each output object item
-            foreach (PSObject outputItem in PSOutput)
-            {
+            //PowerShellInstance.AddCommand("GetWITUser").AddArgument(uname);
+
+            //// invoke execution on the pipeline (collecting output)
+            //var PSOutput = PowerShellInstance.Invoke();
+
+            //// loop through each output object item
+            //foreach (PSObject outputItem in PSOutput)
+            //{
                 // if null object was dumped to the pipeline during the script then a null
                 // object may be present here. check for null to prevent potential NRE.
-                if (outputItem != null)
+                if (usr != null)
                 {
-                    adUser = outputItem;
+                    adUser = usr;
                     //dynamic adUser = outputItem.BaseObject;
                     //Console.WriteLine("GivenName: {0}, Surname: {1}", adUser.Enabled.ToString(), adUser.Surname.ToString());
                     //NameBlock.Text = adUser.Name.ToString();
@@ -83,7 +87,7 @@ namespace HDTools2
                     //    Console.WriteLine(item.ToString());
                     //}
                 }
-            }
+
 
             PowerShellInstance.Commands.Clear();
             PowerShellInstance.AddCommand("GetPhotoImage").AddArgument(adUser);
@@ -121,6 +125,37 @@ namespace HDTools2
                 PowerShellInstance.Invoke();
                 PowerShellInstance.Commands.Clear();
             }
+        }
+
+        private void Button_Click_1(object sender, RoutedEventArgs e)
+        {
+            List<string> props = new List<string>(); 
+            PowerShellInstance.AddCommand("PropsToGet");
+            var PSOutput = PowerShellInstance.Invoke();
+            foreach (PSObject outputItem in PSOutput)
+            {
+                // if null object was dumped to the pipeline during the script then a null
+                // object may be present here. check for null to prevent potential NRE.
+                if (outputItem != null)
+                {
+                    props.Add(outputItem.BaseObject.ToString());
+                }
+            }
+
+            PowerShellInstance.Commands.Clear();
+
+            string output = "";
+            var x = adUser.Properties.ToArray();
+            foreach (var item in x)
+            {
+                var values = "";
+                if (props.Contains(item.Name))
+                {
+                    values = item.Value as string;
+                    output += item.Name + ": " + item.Value + "\n";
+                }
+            }
+            MessageBoxResult messageBoxResult = System.Windows.MessageBox.Show(this, output, "Detailed Information", System.Windows.MessageBoxButton.OK);
         }
     }
 }
