@@ -143,6 +143,7 @@ function ShowImage
     $Form.Activate()
     [void]$Form.ShowDialog()
 }
+function GetPhotoImage { $WID=$args[0].Get_Item("EmployeeID"); return $("http://photoid.wit.edu:8080/$WID.jpg")}
 function AskForInfo
 {
     $global:returnVal = ""
