@@ -1,11 +1,11 @@
-﻿<Window x:Class="HDTools2.MainWindow"
+﻿<Window x:Class="HDTools2.UserInputWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:HDTools2"
         mc:Ignorable="d"
-        Title="MainWindow" Height="150" MinHeight="150" MaxHeight="150" Width="500" MinWidth="500" >
+        Title="UserInputWindow" Height="150" MinHeight="150" MaxHeight="150" Width="500" MinWidth="500" >
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -16,5 +16,7 @@
             <TextBox x:Name="UsernameInput" MinWidth="400" KeyDown="UsernameInput_KeyDown"/>
         </StackPanel>
         <Button Grid.Row="1" Content="Submit" Height="20" Width="100" HorizontalContentAlignment="Center" HorizontalAlignment="Center" Click="Button_Click"/>
+        <Label x:Name="debugLabel" Content="Please enter a username." HorizontalAlignment="Left" Margin="323,3,0,-8" VerticalAlignment="Top" Grid.Row="1"/>
+        <Label x:Name="versionLabel" Content="Version" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="20,18,0,-22" Grid.Row="1"/>
     </Grid>
 </Window>
