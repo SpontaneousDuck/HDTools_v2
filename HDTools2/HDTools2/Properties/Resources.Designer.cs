@@ -61,6 +61,15 @@ namespace HDTools2.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to About.
+        /// </summary>
+        public static string aboutHDT2 {
+            get {
+                return ResourceManager.GetString("aboutHDT2", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized resource of type System.Byte[].
         /// </summary>
         public static byte[] ADResetPassword {

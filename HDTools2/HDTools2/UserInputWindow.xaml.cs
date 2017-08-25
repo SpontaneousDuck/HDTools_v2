@@ -34,14 +34,32 @@ namespace HDTools2
 			get { return debugLabel.Content.ToString(); }
 			set { App.Current.Dispatcher.Invoke(delegate { debugLabel.Content = value; }); }
 		}
+		private double LoadPercent
+		{
+			get { return loadingBar.Value; }
+			set
+			{
+				App.Current.Dispatcher.Invoke(delegate
+				{
+					loadingBar.Value = value;
+					if (value == 0)
+					{
+						loadingBar.Visibility = Visibility.Collapsed;
+					}
+					else { loadingBar.Visibility = Visibility.Visible; }
+				});
+			}
+		}
 		public UserInputWindow()
 		{
 			ui = null; //Takes ownership of the ui object from this thread
 			(new Thread(new ThreadStart(PreparePowerShellInstance))).Start(); //Starts the preparation for the powershell commands
 			InitializeComponent();
+			LoadPercent = 0;
+			DebugStatus = "Please enter a username.";
 			Assembly assem = typeof(UserInputWindow).Assembly; //Gets the current assembly, I think? Helps for getting version label
 			versionLabel.Content = "Version " + assem.GetName().Version.ToString();
-			var timer = new System.Threading.Timer(e => SwitchToInterface(),null,TimeSpan.Zero,TimeSpan.FromSeconds(0.2)); //Checks every .2 seconds if the user interface is ready (with details about user)
+			var timer = new System.Threading.Timer(e => SwitchToInterface(), null, TimeSpan.Zero, TimeSpan.FromSeconds(0.2)); //Checks every .2 seconds if the user interface is ready (with details about user)
 		}
 		private void PreparePowerShellInstance()
 		{
@@ -54,11 +72,13 @@ namespace HDTools2
 			PowerShellInstance.Invoke();
 			PowerShellReady = true;
 		}
-		private void Button_Click(object sender, RoutedEventArgs e){UserEnteredPress();}
-		private void UsernameInput_KeyDown(object sender, KeyEventArgs e){if (e.Key == Key.Enter){UserEnteredPress();}}
+		private void Button_Click(object sender, RoutedEventArgs e) { UserEnteredPress(); }
+		private void UsernameInput_KeyDown(object sender, KeyEventArgs e) { if (e.Key == Key.Enter) { UserEnteredPress(); } }
 
 		private void UserEnteredPress()
 		{
+			loadingBar.Visibility = Visibility.Visible;
+			LoadPercent = 20;
 			string username = UsernameInput.Text;
 			Thread userEnteredThread = new Thread(() => UserEntered(username));
 			userEnteredThread.SetApartmentState(ApartmentState.STA);
@@ -66,7 +86,7 @@ namespace HDTools2
 		}
 		private void SwitchToInterface() //Switches from window for username input to window with data
 		{
-			if (! (ui == null))
+			if (!(ui == null))
 			{
 				App.Current.MainWindow = ui;
 				this.Close();
@@ -81,32 +101,31 @@ namespace HDTools2
 				DebugStatus = "Still loading ActiveDirectory module.";
 				Thread.Sleep(100);
 			}
+			LoadPercent = 30;
 			DebugStatus = "ActiveDirectory module loaded";
-
-
-
-			//Dictionary<string,string> props = MakuUtil.GetUserInfoDict(s);
-			//Debug.Write(props["employeeid"]);
-
 
 			string getUserCommand = "GetWITUser " + s;
 			PowerShellInstance.AddScript(getUserCommand);
 			// invoke execution on the pipeline (collecting output)
+			LoadPercent = 40;
 			DebugStatus = "Searching for user...";
-			var PSOutput = PowerShellInstance.Invoke();  //Try making this in a different thread
+			var PSOutput = PowerShellInstance.Invoke();
 			DebugStatus = "Search complete";
+			LoadPercent = 90;
 			PSObject outputItem = PSOutput[0];
 			if (outputItem != null)
 			{
 				DebugStatus = "User found!";
 				Dispatcher.Invoke(() => ui = new UserInterface(PowerShellInstance, outputItem));
+				LoadPercent = 100;
 				Dispatcher.Invoke(SwitchToInterface);
 				DebugStatus = "New window should now be visible.";
 			}
 			else
 			{
-				DebugStatus = "User was not found";
-				Dispatcher.Invoke(() => System.Windows.MessageBox.Show(this, "Invalid user", "Error", System.Windows.MessageBoxButton.OK));
+				DebugStatus = "User \""+s+"\" was not found";
+				LoadPercent = 0;
+				Dispatcher.Invoke(() => UsernameInput.Text = "");
 			}
 		}
 
@@ -115,6 +134,12 @@ namespace HDTools2
 			string[] facts = Properties.Resources.factsFile.Split('\n');
 			string fact = facts[new Random().Next(facts.Count())];
 			System.Windows.MessageBox.Show(this, fact, "Wow", System.Windows.MessageBoxButton.OK);
+		}
+
+		private void ShowAboutInfo(object sender, RoutedEventArgs e)
+		{
+			string aboutString = Properties.Resources.aboutHDT2;
+			Dispatcher.Invoke(() => System.Windows.MessageBox.Show(this, aboutString, "About", System.Windows.MessageBoxButton.OK));
 		}
 	}
 }

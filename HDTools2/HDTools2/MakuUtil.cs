@@ -6,15 +6,40 @@ using System.Threading.Tasks;
 using System.DirectoryServices.AccountManagement;
 using System.DirectoryServices;
 using System.Diagnostics;
+using System.Management.Automation;
 
 namespace HDTools2
 {
 	class MakuUtil
 	{
+		public static string GetSuggestion(Dictionary<string,string> dict)
+		{
+			if (dict["enabled"].ToLower() == "false")
+			{
+				return "User is disabled. Make sure that they are a current student/staff/faculty member, and that they fit the current requirements for gaining account access.";
+			}
+			else if (dict["passwordExpired"].ToLower() == "false")
+			{
+				return "The user's password has expired. If they can provide you with their correct Wentworth ID number and all protocols are being followed, you can reset their password. This is almost certainly NOT a NetOps issue.";
+			}
+			else
+			{
+				return "The account looks all set!";
+			}
+		}
+		public static bool ConfirmPasswordChange(string username, string password)
+		{
+			using (PrincipalContext pc = new PrincipalContext(ContextType.Domain, "WIT"))
+			{
+				// validate the credentials
+				bool isValid = pc.ValidateCredentials(username, password);
+				return isValid;
+			}
+		}
 		public static Dictionary<string, string> GetUserInfoDict(string user)
 		{
-			try
-			{
+			//try
+			//{
 				Dictionary<string, string> props = new Dictionary<string, string>();
 				PrincipalContext ctx = new PrincipalContext(ContextType.Domain, "WIT");
 				UserPrincipal u = UserPrincipal.FindByIdentity(ctx, user);
@@ -44,26 +69,13 @@ namespace HDTools2
 
 				}
 				return props;
-			}
+			/*}
 			catch (Exception ex)
 			{
 				Console.WriteLine(ex.ToString());
 			}
 
-			return null;
-			/*PropertyCollection rawProps = underlyingObject.Properties;
-			Dictionary<string, string> props = new Dictionary<string, string>();
-
-			foreach (string prop in propsToGet)
-			{
-				props[prop] = rawProps[prop].Value.ToString();
-			}
-			return props;
-			//string firstname = u.GivenName;
-			//string lastname = u.Surname;
-			//string email = u.EmailAddress;
-			//string telephone = u.VoiceTelephoneNumber;
-			*/
+			return null;*/
 		}
 	}
 }

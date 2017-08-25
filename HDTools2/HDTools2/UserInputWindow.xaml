@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:HDTools2"
         mc:Ignorable="d"
-        Title="UserInputWindow" Height="150" MinHeight="150" MaxHeight="150" Width="500" MinWidth="500" >
+        Title="HDTools2 - Enter username" Height="150" MinHeight="150" MaxHeight="150" Width="500" MinWidth="500" >
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -16,7 +16,9 @@
             <TextBox x:Name="UsernameInput" MinWidth="400" KeyDown="UsernameInput_KeyDown"/>
         </StackPanel>
         <Button Grid.Row="1" Content="Submit" Height="20" Width="100" HorizontalContentAlignment="Center" HorizontalAlignment="Center" Click="Button_Click"/>
-        <Label x:Name="debugLabel" Content="Please enter a username." HorizontalAlignment="Left" Margin="323,3,0,-8" VerticalAlignment="Top" Grid.Row="1"/>
-        <Label x:Name="versionLabel" Content="Version" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="20,18,0,-22" Grid.Row="1" MouseDoubleClick="VersionEasterEgg"/>
+        <Label x:Name="debugLabel" Content="Error 24895928529." HorizontalAlignment="Left" Margin="323,3,0,-8" VerticalAlignment="Top" Grid.Row="1"/>
+        <Label x:Name="versionLabel" Content="Error 847274" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="20,18,0,-22" Grid.Row="1" MouseDoubleClick="VersionEasterEgg"/>
+        <ProgressBar x:Name="loadingBar" HorizontalAlignment="Left" Height="10" Margin="196,34,0,-20" Grid.Row="1" VerticalAlignment="Top" Width="100" Visibility="Hidden"/>
+        <Button x:Name="aboutButton" Content="?" HorizontalAlignment="Left" VerticalAlignment="Top" Width="17" Margin="455,5,0,0" Click="ShowAboutInfo"/>
     </Grid>
 </Window>

@@ -1,0 +1,5 @@
+﻿Steven Pitts
+Maku
+If you have feedback, please send it to pittss@wit.edu with the subject line "HDT2 Feedback".
+Please remember that this should not be used as a complete replacement of ActiveDirectory, although the information you see is pulled directly from it.
+Thank you!

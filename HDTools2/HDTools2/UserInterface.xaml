@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:HDTools2"
         mc:Ignorable="d"
-        Title="UserInterface" Height="190" Width="400">
+        Title="HDTools 2 - View information" Height="190" Width="400">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="10"/>

@@ -25,7 +25,7 @@ namespace HDTools2
 	{
 		private PowerShell PowerShellInstance;
 		private PSObject adUser;
-
+		private Dictionary<string, string> mainDetails;
 
 		public UserInterface()
 		{
@@ -39,12 +39,13 @@ namespace HDTools2
 
 			PowerShellInstance = shell;
 			adUser = usr;
-			NameBlock.Text = adUser.Properties["Name"].Value.ToString();
-			IdBlock.Text = adUser.Properties["EmployeeID"].Value.ToString();
+			PopulateMainDetails();
+			NameBlock.Text = mainDetails["name"];
+			IdBlock.Text = mainDetails["employeeID"];
 			if ((IdBlock.Text.Length != 9) || (IdBlock.Text[0] != 'W')) { IdBlock.Foreground = Brushes.Red; }
-			ExpiredBlock.Text = adUser.Properties["PasswordExpired"].Value.ToString();
+			ExpiredBlock.Text = mainDetails["passwordExpired"];
 			if (ExpiredBlock.Text.ToLower() == "true") { ExpiredBlock.Foreground = Brushes.Red; }
-			EnabledBlock.Text = adUser.Properties["Enabled"].Value.ToString();
+			EnabledBlock.Text = mainDetails["enabled"];
 			if (EnabledBlock.Text.ToLower() == "false") { EnabledBlock.Foreground = Brushes.Red; }
 				
 
@@ -56,7 +57,18 @@ namespace HDTools2
 
 			PowerShellInstance.Commands.Clear();
 		}
+		private void PopulateMainDetails()
+		{
+			mainDetails = new Dictionary<string, string>()
+			{
+				{ "name",adUser.Properties["Name"].Value.ToString()},
+				{"employeeID",adUser.Properties["EmployeeID"].Value.ToString() },
+				{"username",adUser.Properties["EmailAddress"].Value.ToString().Substring(0,adUser.Properties["EmailAddress"].Value.ToString().IndexOf('@')) },
+				{"passwordExpired",adUser.Properties["PasswordExpired"].Value.ToString() },
+				{"enabled",adUser.Properties["Enabled"].Value.ToString() }
+			};
 
+		}
 		private void UserInterface_Closing(object sender, System.ComponentModel.CancelEventArgs e){PowerShellInstance.Dispose();}
 
 		private void ResetButtonClicked(object sender, RoutedEventArgs e)
@@ -68,26 +80,23 @@ namespace HDTools2
 				PowerShellInstance.AddCommand("ResetUserPassword").AddArgument(adUser);
 				PowerShellInstance.Invoke();
 				PowerShellInstance.Commands.Clear();
+				string WID = adUser.Properties["EmployeeID"].Value.ToString();
+				string newPassword = @"WIT1$" + WID.Substring(WID.Length - 6);
+				bool resetSuccessfully = MakuUtil.ConfirmPasswordChange(mainDetails["username"], newPassword);
+				if (resetSuccessfully)
+				{
+					System.Windows.MessageBox.Show(this, "Password successfully reset!","Success", System.Windows.MessageBoxButton.OK);
+				}
+				else
+				{
+					System.Windows.MessageBox.Show(this, "Password reset was not completed","Failure", System.Windows.MessageBoxButton.OK);
+				}
 			}
 		}
 
 		private void DetailsButtonClicked(object sender, RoutedEventArgs e)
 		{
 			string[] props = {"DisplayName","Created","EmailAddress","EmployeeID","Enabled","LastBadPasswordAttempt","LastLogonDate","LockedOut","LogonCount","Modified","MemberOf","PasswordExpired","PasswordLastSet","Title"};
-			//List<string> props = new List<string>(); 
-			//PowerShellInstance.AddCommand("PropsToGet");
-			//var PSOutput = PowerShellInstance.Invoke();
-			//foreach (PSObject outputItem in PSOutput)
-			//{
-				// if null object was dumped to the pipeline during the script then a null
-				// object may be present here. check for null to prevent potential NRE.
-			//	if (outputItem != null)
-			//	{
-			//		props.Add(outputItem.BaseObject.ToString());
-			//	}
-			//}
-
-			//PowerShellInstance.Commands.Clear();
 
 			string output = "";
 			var x = adUser.Properties.ToArray();
