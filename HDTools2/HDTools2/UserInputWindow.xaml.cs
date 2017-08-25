@@ -85,8 +85,8 @@ namespace HDTools2
 
 
 
-			Dictionary<string,string> props = MakuUtil.GetUserInfoDict(s);
-			Debug.Write(props["employeeid"]);
+			//Dictionary<string,string> props = MakuUtil.GetUserInfoDict(s);
+			//Debug.Write(props["employeeid"]);
 
 
 			string getUserCommand = "GetWITUser " + s;
