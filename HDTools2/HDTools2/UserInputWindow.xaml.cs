@@ -14,8 +14,10 @@ using System.Windows.Input;
 using System.Reflection;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using System.DirectoryServices.AccountManagement;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.DirectoryServices;
 
 namespace HDTools2
 {
@@ -27,72 +29,42 @@ namespace HDTools2
 		private PowerShell PowerShellInstance;
 		private bool PowerShellReady = false;
 		private UserInterface ui = null;
+		private string DebugStatus
+		{
+			get { return debugLabel.Content.ToString(); }
+			set { App.Current.Dispatcher.Invoke(delegate { debugLabel.Content = value; }); }
+		}
 		public UserInputWindow()
 		{
-			ui = null;
-			ThreadStart preparationThreadStart = new ThreadStart(PreparePowerShellInstance);
-			Thread preparationThread = new Thread(preparationThreadStart);
-			preparationThread.Start();
+			ui = null; //Takes ownership of the ui object from this thread
+			(new Thread(new ThreadStart(PreparePowerShellInstance))).Start(); //Starts the preparation for the powershell commands
 			InitializeComponent();
-			//string version = My. //((AssemblyVersionAttribute)Attribute.GetCustomAttribute(Assembly.GetExecutingAssembly(), typeof(AssemblyVersionAttribute), false)).Version;
-			Assembly assem = typeof(UserInputWindow).Assembly;
-			string version = assem.GetName().Version.ToString();
-			versionLabel.Content = "Version " + version;
-			var timer = new System.Threading.Timer(e => SwitchToInterface(),null,TimeSpan.Zero,TimeSpan.FromSeconds(0.2));
-			//foreach (string key in Application.Current.Properties.Keys)
-			//{
-			//	Debug.Print("A key: " + key);
-			//}
-			//Debug.Print("Keys thing: "+Application.Current.Properties.Keys.ToString());
-			//Application.Current.Resources.
-			//versionLabel.Content = "Version " + Application.Current.Properties.Keys;
+			Assembly assem = typeof(UserInputWindow).Assembly; //Gets the current assembly, I think? Helps for getting version label
+			versionLabel.Content = "Version " + assem.GetName().Version.ToString();
+			var timer = new System.Threading.Timer(e => SwitchToInterface(),null,TimeSpan.Zero,TimeSpan.FromSeconds(0.2)); //Checks every .2 seconds if the user interface is ready (with details about user)
 		}
 		private void PreparePowerShellInstance()
 		{
-			PowerShellInstance = PowerShell.Create();
-			string importScript = @"$env:ADPS_LoadDefaultDrive = 0; import-module ActiveDirectory";
+			PowerShellInstance = PowerShell.Create(); //basically "opens" powershell
 
-			PowerShellInstance.AddScript(importScript);
+			PowerShellInstance.AddScript(@"$env:ADPS_LoadDefaultDrive = 0; import-module ActiveDirectory");//Makes importing AD faster, then imports AD module
+			PowerShellInstance.AddScript("Set-ExecutionPolicy -Scope Process -ExecutionPolicy Unrestricted"); //Allows for scripts
+			string script = System.Text.Encoding.Default.GetString(Properties.Resources.ADResetPassword); //Access the .ps1 scripts
+			PowerShellInstance.AddScript(script, false); //Basically dot-sources the .ps1 scripts
 			PowerShellInstance.Invoke();
-
-			string script1 = "Set-ExecutionPolicy -Scope Process -ExecutionPolicy Unrestricted"; // the second command to know the ExecutionPolicy level
-			PowerShellInstance.AddScript(script1);
-			var someResult = PowerShellInstance.Invoke();
-
-			PowerShellInstance.Commands.Clear();
-
-			string script = System.Text.Encoding.Default.GetString(global::HDTools2.Properties.Resources.ADResetPassword);
-			//script = script.Replace("\r\n", string.Empty).Replace("\n", string.Empty).Replace("\r", string.Empty);
-			PowerShellInstance.AddScript(script, false);
-			PowerShellInstance.Invoke();
-			PowerShellInstance.Commands.Clear();
 			PowerShellReady = true;
-			//DebugNote("Powershell preparation complete");
 		}
 		private void Button_Click(object sender, RoutedEventArgs e){UserEnteredPress();}
-
 		private void UsernameInput_KeyDown(object sender, KeyEventArgs e){if (e.Key == Key.Enter){UserEnteredPress();}}
+
 		private void UserEnteredPress()
 		{
-			//ThreadStart userEnteredThreadStart = new ThreadStart()
-			string usernameInput = UsernameInput.Text;
-			Thread userEnteredThread = new Thread(() => UserEntered(usernameInput));
+			string username = UsernameInput.Text;
+			Thread userEnteredThread = new Thread(() => UserEntered(username));
 			userEnteredThread.SetApartmentState(ApartmentState.STA);
 			userEnteredThread.Start();
 		}
-		private void DebugNote(string s)
-		{
-			//debugLabel.Content = s;
-			App.Current.Dispatcher.Invoke((Action)delegate
-			{
-				debugLabel.Content = s;
-			});
-			//debugLabel.
-			//Thread.Sleep(1000);
-			//Debug.Write("Debug note should have been added.");
-			//Debug.Write("Debug note: " + debugLabel.Content);
-		}
-		private void SwitchToInterface()
+		private void SwitchToInterface() //Switches from window for username input to window with data
 		{
 			if (! (ui == null))
 			{
@@ -103,40 +75,46 @@ namespace HDTools2
 		}
 		private void UserEntered(string s)
 		{
-			DebugNote("User entered...");
+			DebugStatus = "User entered...";
 			while (!(PowerShellReady))
 			{
-				DebugNote("Still loading ActiveDirectory module.");
+				DebugStatus = "Still loading ActiveDirectory module.";
 				Thread.Sleep(100);
 			}
-			DebugNote("ActiveDirectory module loaded");
+			DebugStatus = "ActiveDirectory module loaded";
 
-			//string usernameInput = Dispatcher.Invoke()
+
+
+			Dictionary<string,string> props = MakuUtil.GetUserInfoDict(s);
+			Debug.Write(props["employeeid"]);
+
+
 			string getUserCommand = "GetWITUser " + s;
-			//PowerShellInstance.AddCommand("GetWITUser").AddArgument(UsernameInput.Text);
 			PowerShellInstance.AddScript(getUserCommand);
 			// invoke execution on the pipeline (collecting output)
-			DebugNote("Searching for user...");
+			DebugStatus = "Searching for user...";
 			var PSOutput = PowerShellInstance.Invoke();  //Try making this in a different thread
-			DebugNote("User found!");
+			DebugStatus = "Search complete";
 			PSObject outputItem = PSOutput[0];
-			//System.Console.WriteLine(outputItem.ToString());
-			// if null object was dumped to the pipeline during the script then a null
-			// object may be present here. check for null to prevent potential NRE.
 			if (outputItem != null)
 			{
+				DebugStatus = "User found!";
 				Dispatcher.Invoke(() => ui = new UserInterface(PowerShellInstance, outputItem));
 				Dispatcher.Invoke(SwitchToInterface);
-				//Dispatcher.Invoke(() => App.Current.MainWindow = newWindow);
-				//newWindow.Show();
-				DebugNote("New window should now be visible.");
-				//Dispatcher.Invoke(this.Hide);
+				DebugStatus = "New window should now be visible.";
 			}
 			else
 			{
-				MessageBoxResult messageBoxResult = System.Windows.MessageBox.Show(this, "Invalid user", "Error", System.Windows.MessageBoxButton.OK);
+				DebugStatus = "User was not found";
+				Dispatcher.Invoke(() => System.Windows.MessageBox.Show(this, "Invalid user", "Error", System.Windows.MessageBoxButton.OK));
 			}
-			//}
+		}
+
+		private void VersionEasterEgg(object sender, MouseButtonEventArgs e)
+		{
+			string[] facts = Properties.Resources.factsFile.Split('\n');
+			string fact = facts[new Random().Next(facts.Count())];
+			System.Windows.MessageBox.Show(this, fact, "Wow", System.Windows.MessageBoxButton.OK);
 		}
 	}
 }

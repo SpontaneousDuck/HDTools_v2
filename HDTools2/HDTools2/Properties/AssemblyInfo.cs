@@ -10,7 +10,7 @@ using System.Windows;
 [assembly: AssemblyTitle("HDTools2")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
+[assembly: AssemblyCompany("TechSpot")]
 [assembly: AssemblyProduct("HDTools2")]
 [assembly: AssemblyCopyright("Copyright Maku ©  2017")]
 [assembly: AssemblyTrademark("")]
@@ -51,5 +51,7 @@ using System.Windows;
 // You can specify all the values or you can default the Build and Revision Numbers
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("1.0.0.7")]
+[assembly: AssemblyVersion("1.0.1.0")]
 [assembly: AssemblyFileVersion("1.0.0.5")]
+[assembly: Guid("fa209f95-ae35-4ff1-9126-b0a768676b1c")]
+

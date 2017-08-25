@@ -69,5 +69,23 @@ namespace HDTools2.Properties {
                 return ((byte[])(obj));
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Geese are NEAT
+        ///How can mirrors be real if our eyes aren&apos;t real
+        ///I&apos;m the captain now
+        ///Steven is awesome
+        ///Maku
+        ///Super electromagnetic shrapnel cannon FIRE!
+        ///Ideas are bulletproof
+        ///What do we say to Death? Not today.
+        ///Send password reset tickets to Dom
+        ///Wear polyester when doing laptop repairs.
+        /// </summary>
+        public static string factsFile {
+            get {
+                return ResourceManager.GetString("factsFile", resourceCulture);
+            }
+        }
     }
 }

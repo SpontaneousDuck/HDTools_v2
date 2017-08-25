@@ -17,6 +17,6 @@
         </StackPanel>
         <Button Grid.Row="1" Content="Submit" Height="20" Width="100" HorizontalContentAlignment="Center" HorizontalAlignment="Center" Click="Button_Click"/>
         <Label x:Name="debugLabel" Content="Please enter a username." HorizontalAlignment="Left" Margin="323,3,0,-8" VerticalAlignment="Top" Grid.Row="1"/>
-        <Label x:Name="versionLabel" Content="Version" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="20,18,0,-22" Grid.Row="1"/>
+        <Label x:Name="versionLabel" Content="Version" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="20,18,0,-22" Grid.Row="1" MouseDoubleClick="VersionEasterEgg"/>
     </Grid>
 </Window>
