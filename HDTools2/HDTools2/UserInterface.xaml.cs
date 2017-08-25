@@ -23,41 +23,43 @@ namespace HDTools2
 		
 	public partial class UserInterface : Window
 	{
-		private PowerShell PowerShellInstance;
-		private PSObject adUser;
-
+		//private PowerShell PowerShellInstance;
+		//private PSObject adUser;
+		private string username;
+		Dictionary<string, string> props;
 
 		public UserInterface()
 		{
 			InitializeComponent();
 		}
 
-		public UserInterface(PowerShell shell, PSObject usr)
+		public UserInterface(/*PowerShell shell, PSObject usr,*/Dictionary<string,string> propsDict)
 		{
+			props = propsDict;
 			InitializeComponent();
 			Closing += UserInterface_Closing;
-
-			PowerShellInstance = shell;
-			adUser = usr;
-			NameBlock.Text = adUser.Properties["Name"].Value.ToString();
-			IdBlock.Text = adUser.Properties["EmployeeID"].Value.ToString();
+			username = propsDict["displayname"];
+			//PowerShellInstance = shell;
+			//adUser = usr;
+			NameBlock.Text = props["name"];
+			IdBlock.Text = props["employeeid"];
 			if ((IdBlock.Text.Length != 9) || (IdBlock.Text[0] != 'W')) { IdBlock.Foreground = Brushes.Red; }
-			ExpiredBlock.Text = adUser.Properties["PasswordExpired"].Value.ToString();
+			ExpiredBlock.Text = props["expired"];
 			if (ExpiredBlock.Text.ToLower() == "true") { ExpiredBlock.Foreground = Brushes.Red; }
-			EnabledBlock.Text = adUser.Properties["Enabled"].Value.ToString();
+			EnabledBlock.Text = props["enabled"];
 			if (EnabledBlock.Text.ToLower() == "false") { EnabledBlock.Foreground = Brushes.Red; }
 				
 
 
-			PowerShellInstance.Commands.Clear();
-			string photoURL = @"http://photoid.wit.edu:8080/" + adUser.Properties["EmployeeID"].Value.ToString() + @".jpg";
+			//PowerShellInstance.Commands.Clear();
+			string photoURL = @"http://photoid.wit.edu:8080/" + props["employeeid"] + @".jpg";
 			BitmapImage image = new BitmapImage(new Uri(photoURL)) ?? new BitmapImage(new Uri(@"https://pbs.twimg.com/profile_images/580015243780362240/lWe51Oxw.jpg"));
 			Picture.Source = image;
 
-			PowerShellInstance.Commands.Clear();
+			//PowerShellInstance.Commands.Clear();
 		}
 
-		private void UserInterface_Closing(object sender, System.ComponentModel.CancelEventArgs e){PowerShellInstance.Dispose();}
+		private void UserInterface_Closing(object sender, System.ComponentModel.CancelEventArgs e){/*PowerShellInstance.Dispose();*/}
 
 		private void ResetButtonClicked(object sender, RoutedEventArgs e)
 		{
@@ -65,22 +67,24 @@ namespace HDTools2
 			MessageBoxResult messageBoxResult = System.Windows.MessageBox.Show(this, resetMessage, "Reset Confirmation", System.Windows.MessageBoxButton.OKCancel);
 			if (messageBoxResult == MessageBoxResult.OK)
 			{
-				PowerShellInstance.AddCommand("ResetUserPassword").AddArgument(adUser);
+				/*PowerShellInstance.AddCommand("ResetUserPassword").AddArgument(adUser);
 				PowerShellInstance.Invoke();
-				PowerShellInstance.Commands.Clear();
+				PowerShellInstance.Commands.Clear();*/
+				MakuUtil.ResetUserPassword(username);
 			}
 		}
 
 		private void DetailsButtonClicked(object sender, RoutedEventArgs e)
 		{
-			string[] props = {"DisplayName","Created","EmailAddress","EmployeeID","Enabled","LastBadPasswordAttempt","LastLogonDate","LockedOut","LogonCount","Modified","MemberOf","PasswordExpired","PasswordLastSet","Title"};
+			string[] propsToGet = { "name", "displayname", "whencreated", /*"emailaddress",*/ "employeeid", "enabled", "badpasswordtime", "lastlogon", "lockouttime", "logoncount", /*"modified", */"memberof",/* "passwordexpired",*/ "pwdlastset", "title" };
+			//string[] props = {"DisplayName","Created","EmailAddress","EmployeeID","Enabled","LastBadPasswordAttempt","LastLogonDate","LockedOut","LogonCount","Modified","MemberOf","PasswordExpired","PasswordLastSet","Title"};
 			//List<string> props = new List<string>(); 
 			//PowerShellInstance.AddCommand("PropsToGet");
 			//var PSOutput = PowerShellInstance.Invoke();
 			//foreach (PSObject outputItem in PSOutput)
 			//{
-				// if null object was dumped to the pipeline during the script then a null
-				// object may be present here. check for null to prevent potential NRE.
+			// if null object was dumped to the pipeline during the script then a null
+			// object may be present here. check for null to prevent potential NRE.
 			//	if (outputItem != null)
 			//	{
 			//		props.Add(outputItem.BaseObject.ToString());
@@ -88,18 +92,27 @@ namespace HDTools2
 			//}
 
 			//PowerShellInstance.Commands.Clear();
-
 			string output = "";
-			var x = adUser.Properties.ToArray();
-			foreach (var item in x)
+			foreach (string prop in props.Keys)
 			{
-				var values = "";
-				if (props.Contains(item.Name))
+				Debug.Print("Prop: " + prop);
+				if (propsToGet.Contains(prop))
 				{
-					values = item.Value as string;
-					output += item.Name + ": " + item.Value + "\n";
+					string val = props[prop];
+					output += prop + ": " + val + "\n";
 				}
 			}
+			//string output = "";
+			//var x = adUser.Properties.ToArray();
+			//foreach (string prop in props.Keys)
+			//{
+			//	var values = "";
+			//	if (propsToGet.Contains(prop))
+			//	{
+			//		values = props[prop];
+			//		output += prop + ": " + values + "\n";
+			//	}
+			//}
 			MessageBoxResult messageBoxResult = System.Windows.MessageBox.Show(this, output, "Detailed Information", System.Windows.MessageBoxButton.OK);
 		}
 	}

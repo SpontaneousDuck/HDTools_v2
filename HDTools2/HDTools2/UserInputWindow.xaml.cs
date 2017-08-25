@@ -99,7 +99,7 @@ namespace HDTools2
 			if (outputItem != null)
 			{
 				DebugStatus = "User found!";
-				Dispatcher.Invoke(() => ui = new UserInterface(PowerShellInstance, outputItem));
+				Dispatcher.Invoke(() => ui = new UserInterface(/*PowerShellInstance, outputItem, */props));
 				Dispatcher.Invoke(SwitchToInterface);
 				DebugStatus = "New window should now be visible.";
 			}
