@@ -1,9 +1,20 @@
 function GetWITUser
 {
-    $infoEntered = If ($args[0]) {$args[0].ToLower()} else {$(AskForInfo).ToLower()}
-    $isWITID = $($infoEntered -like "w0*")
-    $adUser = If ($isWITID) {GetWITUserByID $infoEntered} else {GetWITUserByUsername $infoEntered}
-    return $adUser
+    $infoEntered = $args[0].ToLower()
+    if ($infoEntered -like "w0*")
+	{
+		return $(GetWITUserByID $infoEntered)
+	}
+	elseif ($infoEntered -match ",")
+	{
+		return $(GetWITUserByLastFirst $infoEntered)
+	}
+	else
+	{
+		return $(GetWITUserByUsername $infoEntered)
+	}
+    #$adUser = If ($isWITID) {GetWITUserByID $infoEntered} else {GetWITUserByUsername $infoEntered}
+    #return $adUser
 }
 function ResetUserPassword
 {
@@ -19,6 +30,14 @@ function GetWITUserByID
     $id=$args[0]
     $user = Get-ADUser -Filter "EmployeeID -like ""$id""" -properties *
     return $user
+}
+function GetWITUserByLastFirst
+{
+	$lastFirst = $args[0].ToLower()
+	$user = Get-ADUser -Filter {(Surname -like "*") -and (GivenName -like "*")} |
+	? {$($lastFirst -match $_.Surname.ToLower())} |
+	? {$($lastFirst -match $_.GivenName.ToLower())}
+	return $user
 }
 function GetWITUserByUsername
 {

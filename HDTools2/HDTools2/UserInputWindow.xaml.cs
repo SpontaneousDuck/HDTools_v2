@@ -31,12 +31,12 @@ namespace HDTools2
 		private UserInterface ui = null;
 		private string DebugStatus
 		{
-			get { return debugLabel.Content.ToString(); }
-			set { App.Current.Dispatcher.Invoke(delegate { debugLabel.Content = value; }); }
+			get { string labelContent = null; Dispatcher.Invoke(() => labelContent = debugLabel.Content.ToString()); return labelContent; }
+			set { App.Current.Dispatcher.Invoke(delegate { debugLabel.Content = value; }); /*Debug.WriteLine(value);*/ }
 		}
-		private double LoadPercent
+		public double LoadPercent
 		{
-			get { return loadingBar.Value; }
+			get { double loadingValue = Double.NaN; Dispatcher.Invoke(() => loadingValue = loadingBar.Value); return loadingValue; }
 			set
 			{
 				App.Current.Dispatcher.Invoke(delegate
@@ -110,9 +110,9 @@ namespace HDTools2
 			LoadPercent = 40;
 			DebugStatus = "Searching for user...";
 			var PSOutput = PowerShellInstance.Invoke();
-			DebugStatus = "Search complete";
 			LoadPercent = 90;
 			PSObject outputItem = PSOutput[0];
+			DebugStatus = "Search complete";
 			if (outputItem != null)
 			{
 				DebugStatus = "User found!";
@@ -123,12 +123,76 @@ namespace HDTools2
 			}
 			else
 			{
-				DebugStatus = "User \""+s+"\" was not found";
+
+				/*MessageBoxResult messageBoxResult = MessageBoxResult.None;
+				Dispatcher.Invoke(() => messageBoxResult = System.Windows.MessageBox.Show(this, "User \""+s+"\" was not found. Perform a deep search?", "Deep search?", System.Windows.MessageBoxButton.OKCancel));
+				if (messageBoxResult == MessageBoxResult.OK)
+				{
+					ThreadStart deepThreadStart = (() => DeepSearchStart(s));
+					Thread deepThread = new Thread(deepThreadStart);
+					deepThread.Start();
+				}
+				else
+				{*/
+				DebugStatus = "User \"" + s + "\" was not found";
 				LoadPercent = 0;
 				Dispatcher.Invoke(() => UsernameInput.Text = "");
+				//}
 			}
 		}
-
+		private void DeepSearchStart(string s)
+		{
+			throw new NotImplementedException();
+#pragma warning disable CS0162 // Unreachable code detected
+			DebugStatus = "Starting deep search";
+#pragma warning restore CS0162 // Unreachable code detected
+			LoadPercent = 0;
+			s = s.ToLower();
+			PrincipalContext ctx = new PrincipalContext(ContextType.Domain, "WIT");
+			PrincipalSearcher searcher = new PrincipalSearcher(new UserPrincipal(ctx));
+			LoadPercent = 10;
+			PrincipalSearchResult<Principal> allUsers = searcher.FindAll();
+			DebugStatus = "Users acquired, optimizing for loop...";
+			LoadPercent = 20;
+			//IEnumerator<Principal> allUsersEnum = allUsers.GetEnumerator();
+			int totalEntries = allUsers.Count();
+			List<DirectoryEntry> allDEs = new List<DirectoryEntry>(totalEntries);
+			//List<Principal> allUsersList = allUsers.ToList<Principal>();
+			for (int i=0;i<totalEntries;i++)
+			{
+				Principal user = allUsers.ElementAt(i);
+				DirectoryEntry de = user.GetUnderlyingObject() as DirectoryEntry;
+				if ((de.Properties["givenName"].Value != null) && (de.Properties["sn"].Value != null))
+				{
+					allDEs.Add(de);
+				}
+				LoadPercent = 20 + ((30 * i) / totalEntries);
+			}
+			allUsers = null;
+			DebugStatus = "Optimization complete, preparing for loop...";
+			LoadPercent = 50;
+			int numUsers = allDEs.Count();
+			double loadChange = 1 / numUsers;
+			for (int i=0; i<numUsers; i++)
+			{
+				DirectoryEntry de = allDEs[i];
+				DebugStatus = "Now searching user " + i.ToString();
+				//DirectoryEntry de = user.GetUnderlyingObject() as DirectoryEntry;
+				//if ((de.Properties["givenName"].Value != null) && (de.Properties["sn"].Value != null))
+				//{
+				string firstName = de.Properties["givenName"].Value.ToString().ToLower();
+				string lastName = de.Properties["sn"].Value.ToString().ToLower();
+				if (s.Contains(firstName) && s.Contains(lastName))
+				{
+					UserEntered(de.Name.ToString());
+					return;
+				}
+				//}
+				LoadPercent = 50 + (50*i / numUsers);
+			}
+			LoadPercent = 0;
+			DebugStatus = "Deep search completed, no results";
+		}
 		private void VersionEasterEgg(object sender, MouseButtonEventArgs e)
 		{
 			string[] facts = Properties.Resources.factsFile.Split('\n');
@@ -140,6 +204,12 @@ namespace HDTools2
 		{
 			string aboutString = Properties.Resources.aboutHDT2;
 			Dispatcher.Invoke(() => System.Windows.MessageBox.Show(this, aboutString, "About", System.Windows.MessageBoxButton.OK));
+		}
+
+		private void OpenAD(object sender, RoutedEventArgs e)
+		{
+			System.Diagnostics.Process.Start(@"C:\Windows\system32\dsa.msc");
+			this.Close();
 		}
 	}
 }
