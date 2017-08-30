@@ -1,0 +1,50 @@
+﻿<Page x:Class="HDTools2.UserInterfacePage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:local="clr-namespace:HDTools2"
+      mc:Ignorable="d" 
+      d:DesignHeight="190" d:DesignWidth="400"
+      Title="UserInterfacePage">
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="10"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="10"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="10"/>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="10"/>
+        </Grid.ColumnDefinitions>
+        <StackPanel Orientation="Horizontal" Grid.Row="1" Grid.Column="1">
+            <TextBlock HorizontalAlignment="Left" TextWrapping="NoWrap" Text="User: "/>
+            <TextBlock x:Name="NameBlock" HorizontalAlignment="Center" TextWrapping="NoWrap" Text="null"/>
+        </StackPanel>
+        <StackPanel Orientation="Horizontal" Grid.Row="2" Grid.Column="1">
+            <TextBlock HorizontalAlignment="Left" TextWrapping="NoWrap" Text="ID: "/>
+            <TextBlock x:Name="IdBlock" HorizontalAlignment="Center" TextWrapping="NoWrap" Text="null"/>
+        </StackPanel>
+        <StackPanel Orientation="Horizontal" Grid.Row="1" Grid.Column="2">
+            <TextBlock HorizontalAlignment="Left" TextWrapping="NoWrap" Text="Expired: "/>
+            <TextBlock x:Name="ExpiredBlock" HorizontalAlignment="Center" TextWrapping="NoWrap" Text="null"/>
+        </StackPanel>
+        <StackPanel Orientation="Horizontal" Grid.Row="2" Grid.Column="2">
+            <TextBlock HorizontalAlignment="Left" TextWrapping="NoWrap" Text="Enabled: "/>
+            <TextBlock x:Name="EnabledBlock" HorizontalAlignment="Center" TextWrapping="NoWrap" Text="null"/>
+        </StackPanel>
+        <StackPanel Orientation="Vertical" Grid.Row="3" Grid.Column="1" Margin="0,10" HorizontalAlignment="Left" VerticalAlignment="Top">
+            <Button Content="Details" HorizontalAlignment="Left" VerticalAlignment="Top" Width="100" Click="DetailsButtonClicked"/>
+            <Button Content="Reset Password" HorizontalAlignment="Left" VerticalAlignment="Top" Width="100" Margin="0,10" Click="ResetButtonClicked"/>
+        </StackPanel>
+        <Image x:Name="Picture" Grid.Row="3" Grid.Column="2" Height="100" Width="100" VerticalAlignment="Top" HorizontalAlignment="Left"/>
+        <Button x:Name="MemberOfButton" Content="Member of" HorizontalAlignment="Left" VerticalAlignment="Top" Width="75" Grid.Column="2" Margin="91,10,0,0" Grid.RowSpan="2" Click="OpenMemberOf"/>
+
+
+    </Grid>
+</Page>

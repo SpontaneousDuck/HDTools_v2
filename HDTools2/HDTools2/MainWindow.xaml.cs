@@ -10,19 +10,24 @@ using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
 using System.Windows.Shapes;
 
 namespace HDTools2
 {
-	/// <summary>
-	/// Interaction logic for Page1.xaml
-	/// </summary>
-	public partial class Page1 : Page
-	{
-		public Page1()
+    /// <summary>
+    /// Interaction logic for MainWindow.xaml
+    /// </summary>
+    public partial class MainWindow : Window
+    {
+		//public Frame src;
+        public MainWindow()
+        {
+            InitializeComponent();
+			src.Navigate(new UserInputPage(this));
+        }
+		public void ChangePage(Page newPage)
 		{
-			InitializeComponent();
+			src.Navigate(newPage);
 		}
-	}
+    }
 }
