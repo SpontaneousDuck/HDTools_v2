@@ -211,5 +211,15 @@ namespace HDTools2
 			System.Diagnostics.Process.Start(@"C:\Windows\system32\dsa.msc");
 			this.Close();
 		}
+
+		private void ChangeTheme(object sender, RoutedEventArgs e)
+		{
+			Dispatcher.Invoke(() => System.Windows.MessageBox.Show(this, "This button is just to make Tristan think we have Theme customization", "NO", System.Windows.MessageBoxButton.OK));
+		}
+
+		private void OpenServiceNow(object sender, RoutedEventArgs e)
+		{
+			Process.Start(@"C:\Program Files (x86)\Google\Chrome\Application\chrome.exe", "wit.service-now.com");
+		}
 	}
 }
