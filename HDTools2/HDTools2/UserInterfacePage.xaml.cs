@@ -14,6 +14,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.Windows.Threading;
 
 namespace HDTools2
 {
@@ -56,9 +57,10 @@ namespace HDTools2
 			string photoURL = @"http://photoid.wit.edu:8080/" + adUser.Properties["EmployeeID"].Value.ToString() + @".jpg";
 			BitmapImage image = new BitmapImage(new Uri(photoURL)) ?? new BitmapImage(new Uri(@"https://pbs.twimg.com/profile_images/580015243780362240/lWe51Oxw.jpg"));
 			Picture.Source = image;
-
 			PowerShellInstance.Commands.Clear();
+			
 		}
+
 		private void PopulateMainDetails()
 		{
 			mainDetails = new Dictionary<string, string>()

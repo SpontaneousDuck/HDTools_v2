@@ -32,14 +32,14 @@ namespace HDTools2
 		private MainWindow master;
 		private string DebugStatus
 		{
-			get { string labelContent = null; Dispatcher.Invoke(() => labelContent = debugLabel.Content.ToString()); return labelContent; }
-			set { App.Current.Dispatcher.Invoke(delegate { debugLabel.Content = value; }); /*Debug.WriteLine(value);*/ }
+			get { /*string labelContent = null; Dispatcher.Invoke(() => labelContent = debugLabel.Content.ToString()); return labelContent;*/return null; }
+			set{/*App.Current.Dispatcher.Invoke(delegate {debugLabel.Content = value;}); /*Debug.WriteLine(value);*/}
 		}
 		public double LoadPercent
 		{
-			get { double loadingValue = Double.NaN; Dispatcher.Invoke(() => loadingValue = loadingBar.Value); return loadingValue; }
+			get { /*double loadingValue = Double.NaN; Dispatcher.Invoke(() => loadingValue = loadingBar.Value); return loadingValue;*/return 0; }
 			set
-			{
+			{/*
 				App.Current.Dispatcher.Invoke(delegate
 				{
 					loadingBar.Value = value;
@@ -48,7 +48,7 @@ namespace HDTools2
 						loadingBar.Visibility = Visibility.Collapsed;
 					}
 					else { loadingBar.Visibility = Visibility.Visible; }
-				});
+				});*/
 			}
 		}
 		public UserInputPage(MainWindow master)
@@ -59,7 +59,7 @@ namespace HDTools2
 			InitializeComponent();
 			LoadPercent = 0;
 			DebugStatus = "Please enter a username.";
-			Assembly assem = typeof(UserInputWindow).Assembly; //Gets the current assembly, I think? Helps for getting version label
+			Assembly assem = typeof(UserInputPage).Assembly; //Gets the current assembly, I think? Helps for getting version label
 			versionLabel.Content = "Version " + assem.GetName().Version.ToString();
 			//var timer = new System.Threading.Timer(e => SwitchToInterface(), null, TimeSpan.Zero, TimeSpan.FromSeconds(0.2)); //Checks every .2 seconds if the user interface is ready (with details about user)
 		}
@@ -122,8 +122,9 @@ namespace HDTools2
 				//Dispatcher.Invoke(() => ui = new UserInterface(PowerShellInstance, outputItem));
 				LoadPercent = 100;
 				//Dispatcher.Invoke(SwitchToInterface);
-				master.ChangePage(new UserInterfacePage(PowerShellInstance, outputItem, master));
-				DebugStatus = "New window should now be visible.";
+				master.Source = new UserInterfacePage(PowerShellInstance, outputItem, master);
+				//DebugStatus = "New window should now be visible.";
+				Debug.Write("hi");
 			}
 			else
 			{
@@ -143,6 +144,7 @@ namespace HDTools2
 				Dispatcher.Invoke(() => UsernameInput.Text = "");
 				//}
 			}
+			Thread.CurrentThread.Abort();
 		}
 		private void DeepSearchStart(string s)
 		{

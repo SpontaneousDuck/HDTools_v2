@@ -19,15 +19,18 @@ namespace HDTools2
     /// </summary>
     public partial class MainWindow : Window
     {
+		public Page Source
+		{
+			set
+			{
+				Dispatcher.Invoke(() => src.Navigate(value));
+			}
+		}
 		//public Frame src;
         public MainWindow()
         {
             InitializeComponent();
-			src.Navigate(new UserInputPage(this));
+			Source = new UserInputPage(this);
         }
-		public void ChangePage(Page newPage)
-		{
-			src.Navigate(newPage);
-		}
     }
 }
