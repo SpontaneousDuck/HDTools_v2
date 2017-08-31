@@ -111,5 +111,13 @@ namespace HDTools2
 			}
 			MessageBoxResult messageBoxResult = System.Windows.MessageBox.Show(this, output, "Detailed Information", System.Windows.MessageBoxButton.OK);
 		}
+
+		private void BackToInput(object sender, RoutedEventArgs e)
+		{
+			UserInputWindow newWindow = new UserInputWindow();
+			App.Current.MainWindow = newWindow;
+			this.Close();
+			newWindow.Show();
+		}
 	}
 }

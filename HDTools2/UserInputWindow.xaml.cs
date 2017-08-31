@@ -28,38 +28,29 @@ namespace HDTools2
 	{
 		private PowerShell PowerShellInstance;
 		private bool PowerShellReady = false;
-		private UserInterface ui = null;
 		private string DebugStatus
 		{
 			get { string labelContent = null; Dispatcher.Invoke(() => labelContent = debugLabel.Content.ToString()); return labelContent; }
-			set { App.Current.Dispatcher.Invoke(delegate { debugLabel.Content = value; }); /*Debug.WriteLine(value);*/ }
+			set { App.Current.Dispatcher.Invoke(delegate { debugLabel.Content = value; }); }
 		}
 		public double LoadPercent
 		{
 			get { double loadingValue = Double.NaN; Dispatcher.Invoke(() => loadingValue = loadingBar.Value); return loadingValue; }
-			set
-			{
-				App.Current.Dispatcher.Invoke(delegate
-				{
-					loadingBar.Value = value;
-					if (value == 0)
-					{
-						loadingBar.Visibility = Visibility.Collapsed;
-					}
-					else { loadingBar.Visibility = Visibility.Visible; }
+			set{App.Current.Dispatcher.Invoke(delegate{
+				loadingBar.Value = value;
+				if (value == 0){loadingBar.Visibility = Visibility.Collapsed;}
+				else { loadingBar.Visibility = Visibility.Visible; }
 				});
 			}
 		}
 		public UserInputWindow()
 		{
-			ui = null; //Takes ownership of the ui object from this thread
 			(new Thread(new ThreadStart(PreparePowerShellInstance))).Start(); //Starts the preparation for the powershell commands
 			InitializeComponent();
 			LoadPercent = 0;
 			DebugStatus = "Please enter a username.";
 			Assembly assem = typeof(UserInputWindow).Assembly; //Gets the current assembly, I think? Helps for getting version label
 			versionLabel.Content = "Version " + assem.GetName().Version.ToString();
-			var timer = new System.Threading.Timer(e => SwitchToInterface(), null, TimeSpan.Zero, TimeSpan.FromSeconds(0.2)); //Checks every .2 seconds if the user interface is ready (with details about user)
 		}
 		private void PreparePowerShellInstance()
 		{
@@ -71,6 +62,7 @@ namespace HDTools2
 			PowerShellInstance.AddScript(script, false); //Basically dot-sources the .ps1 scripts
 			PowerShellInstance.Invoke();
 			PowerShellReady = true;
+			Thread.CurrentThread.Join();
 		}
 		private void Button_Click(object sender, RoutedEventArgs e) { UserEnteredPress(); }
 		private void UsernameInput_KeyDown(object sender, KeyEventArgs e) { if (e.Key == Key.Enter) { UserEnteredPress(); } }
@@ -81,17 +73,8 @@ namespace HDTools2
 			LoadPercent = 20;
 			string username = UsernameInput.Text;
 			Thread userEnteredThread = new Thread(() => UserEntered(username));
-			userEnteredThread.SetApartmentState(ApartmentState.STA);
+			//userEnteredThread.SetApartmentState(ApartmentState.STA);
 			userEnteredThread.Start();
-		}
-		private void SwitchToInterface() //Switches from window for username input to window with data
-		{
-			if (!(ui == null))
-			{
-				App.Current.MainWindow = ui;
-				this.Close();
-				ui.Show();
-			}
 		}
 		private void UserEntered(string s)
 		{
@@ -116,82 +99,16 @@ namespace HDTools2
 			if (outputItem != null)
 			{
 				DebugStatus = "User found!";
-				Dispatcher.Invoke(() => ui = new UserInterface(PowerShellInstance, outputItem));
+				Application.Current.Dispatcher.Invoke(() => { App.Current.MainWindow = new UserInterface(PowerShellInstance, outputItem); this.Close(); App.Current.MainWindow.Show(); });
 				LoadPercent = 100;
-				Dispatcher.Invoke(SwitchToInterface);
 				DebugStatus = "New window should now be visible.";
 			}
 			else
 			{
-
-				/*MessageBoxResult messageBoxResult = MessageBoxResult.None;
-				Dispatcher.Invoke(() => messageBoxResult = System.Windows.MessageBox.Show(this, "User \""+s+"\" was not found. Perform a deep search?", "Deep search?", System.Windows.MessageBoxButton.OKCancel));
-				if (messageBoxResult == MessageBoxResult.OK)
-				{
-					ThreadStart deepThreadStart = (() => DeepSearchStart(s));
-					Thread deepThread = new Thread(deepThreadStart);
-					deepThread.Start();
-				}
-				else
-				{*/
 				DebugStatus = "User \"" + s + "\" was not found";
 				LoadPercent = 0;
-				Dispatcher.Invoke(() => UsernameInput.Text = "");
-				//}
+				Application.Current.Dispatcher.Invoke(() => UsernameInput.Text = "");
 			}
-		}
-		private void DeepSearchStart(string s)
-		{
-			throw new NotImplementedException();
-#pragma warning disable CS0162 // Unreachable code detected
-			DebugStatus = "Starting deep search";
-#pragma warning restore CS0162 // Unreachable code detected
-			LoadPercent = 0;
-			s = s.ToLower();
-			PrincipalContext ctx = new PrincipalContext(ContextType.Domain, "WIT");
-			PrincipalSearcher searcher = new PrincipalSearcher(new UserPrincipal(ctx));
-			LoadPercent = 10;
-			PrincipalSearchResult<Principal> allUsers = searcher.FindAll();
-			DebugStatus = "Users acquired, optimizing for loop...";
-			LoadPercent = 20;
-			//IEnumerator<Principal> allUsersEnum = allUsers.GetEnumerator();
-			int totalEntries = allUsers.Count();
-			List<DirectoryEntry> allDEs = new List<DirectoryEntry>(totalEntries);
-			//List<Principal> allUsersList = allUsers.ToList<Principal>();
-			for (int i=0;i<totalEntries;i++)
-			{
-				Principal user = allUsers.ElementAt(i);
-				DirectoryEntry de = user.GetUnderlyingObject() as DirectoryEntry;
-				if ((de.Properties["givenName"].Value != null) && (de.Properties["sn"].Value != null))
-				{
-					allDEs.Add(de);
-				}
-				LoadPercent = 20 + ((30 * i) / totalEntries);
-			}
-			allUsers = null;
-			DebugStatus = "Optimization complete, preparing for loop...";
-			LoadPercent = 50;
-			int numUsers = allDEs.Count();
-			double loadChange = 1 / numUsers;
-			for (int i=0; i<numUsers; i++)
-			{
-				DirectoryEntry de = allDEs[i];
-				DebugStatus = "Now searching user " + i.ToString();
-				//DirectoryEntry de = user.GetUnderlyingObject() as DirectoryEntry;
-				//if ((de.Properties["givenName"].Value != null) && (de.Properties["sn"].Value != null))
-				//{
-				string firstName = de.Properties["givenName"].Value.ToString().ToLower();
-				string lastName = de.Properties["sn"].Value.ToString().ToLower();
-				if (s.Contains(firstName) && s.Contains(lastName))
-				{
-					UserEntered(de.Name.ToString());
-					return;
-				}
-				//}
-				LoadPercent = 50 + (50*i / numUsers);
-			}
-			LoadPercent = 0;
-			DebugStatus = "Deep search completed, no results";
 		}
 		private void VersionEasterEgg(object sender, MouseButtonEventArgs e)
 		{
@@ -209,7 +126,7 @@ namespace HDTools2
 		private void OpenAD(object sender, RoutedEventArgs e)
 		{
 			System.Diagnostics.Process.Start(@"C:\Windows\system32\dsa.msc");
-			this.Close();
+			//this.Close();
 		}
 	}
 }

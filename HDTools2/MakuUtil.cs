@@ -13,34 +13,6 @@ namespace HDTools2
 {
 	class MakuUtil
 	{
-		/*public static string GetDeepSearchUser(string data, UserInputWindow window)
-		{
-			window.LoadPercent = 0;
-			data = data.ToLower();
-			PrincipalContext ctx = new PrincipalContext(ContextType.Domain, "WIT");
-			PrincipalSearcher searcher = new PrincipalSearcher(new UserPrincipal(ctx));
-			window.LoadPercent = 10;
-			PrincipalSearchResult<Principal> allUsers = searcher.FindAll();
-			Dispatcher.Invoke(() => window.LoadPercent = 50);
-			double loadChange = 1 / allUsers.Count();
-			foreach (Principal user in allUsers)
-			{
-				DirectoryEntry de = user.GetUnderlyingObject() as DirectoryEntry;
-				string firstName = de.Properties["givenName"].Value.ToString().ToLower();
-				string lastName = de.Properties["sn"].Value.ToString().ToLower();
-				if (data.Contains(firstName) && data.Contains(lastName))
-				{
-					return user.Name.ToString();
-				}
-				window.LoadPercent += loadChange;
-				Console.WriteLine("First Name: " + de.Properties["givenName"].Value);
-				Console.WriteLine("Last Name : " + de.Properties["sn"].Value);
-				Console.WriteLine("SAM account name   : " + de.Properties["samAccountName"].Value);
-				Console.WriteLine("User principal name: " + de.Properties["userPrincipalName"].Value);
-				Console.WriteLine();
-			}
-			return null;
-		}*/
 		public static string GetSuggestion(Dictionary<string,string> dict)
 		{
 			if (dict["enabled"].ToLower() == "false")
@@ -88,7 +60,6 @@ namespace HDTools2
 					//Debug.Write(rpc.PropertyNames.ToString());
 					foreach (string rp in rpc.PropertyNames)
 					{
-						//Debug.WriteLine("RP thing: "+rp);
 						if (propsToGet.Contains(rp))
 						{
 							props[rp] = rpc[rp][0].ToString();
@@ -98,13 +69,6 @@ namespace HDTools2
 
 				}
 				return props;
-			/*}
-			catch (Exception ex)
-			{
-				Console.WriteLine(ex.ToString());
-			}
-
-			return null;*/
 		}
 	}
 }
