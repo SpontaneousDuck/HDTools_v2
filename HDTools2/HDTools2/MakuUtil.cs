@@ -13,31 +13,6 @@ namespace HDTools2
 {
 	class MakuUtil
 	{
-		/*public static Dictionary<string,string> GetUserProperties(PSObject adUser)
-		{
-			Dictionary<string, string> propDict = new Dictionary<string, string>();
-			PSPropertyInfo[] infoArray = adUser.Properties.ToArray();
-			PropertyCollection infoProps = adUser.Properties;
-			foreach (PSPropertyInfo infoCouple in infoArray)
-			{
-				string key = infoCouple.Name.ToString();
-				string val = "Undefined";
-				var itemValue = infoCouple.Value;
-				if (itemValue != null)
-				{
-					if ((itemValue as System.Collections.IEnumerable) != null)
-					{
-						Debug.WriteLine(itemValue.GetType().ToString());
-						var enummed = itemValue as System.Collections.IEnumerable;
-						Debug.WriteLine(key + ": " + enummed.ToString());
-					}
-					//string val = (infoCouple.Value == null) ? "UNDEFINED" : infoCouple.Value.ToString();
-				}
-				//propDict[key] = val;
-				//Debug.WriteLine(key + ": " + val);
-			}
-			return propDict;
-		}*/
 		/*public static string GetDeepSearchUser(string data, UserInputWindow window)
 		{
 			window.LoadPercent = 0;

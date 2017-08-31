@@ -14,7 +14,6 @@ using System.Windows.Shapes;
 using System.Diagnostics;
 using System.Management.Automation;
 using System.Collections.ObjectModel;
-using System.DirectoryServices;
 
 namespace HDTools2
 {
@@ -27,7 +26,6 @@ namespace HDTools2
 		private PowerShell PowerShellInstance;
 		private PSObject adUser;
 		private Dictionary<string, string> mainDetails;
-		//private Dictionary<string, string> fullProps;
 
 		public UserInterface()
 		{
@@ -42,7 +40,6 @@ namespace HDTools2
 			PowerShellInstance = shell;
 			adUser = usr;
 			PopulateMainDetails();
-			//fullProps = MakuUtil.GetUserProperties(adUser);
 			NameBlock.Text = mainDetails["name"];
 			IdBlock.Text = mainDetails["employeeID"];
 			if ((IdBlock.Text.Length != 9) || (IdBlock.Text[0] != 'W')) { IdBlock.Foreground = Brushes.Red; }
@@ -105,7 +102,7 @@ namespace HDTools2
 			var x = adUser.Properties.ToArray();
 			foreach (var item in x)
 			{
-				string values = "";
+				var values = "";
 				if (props.Contains(item.Name))
 				{
 					values = item.Value as string;
@@ -113,18 +110,6 @@ namespace HDTools2
 				}
 			}
 			MessageBoxResult messageBoxResult = System.Windows.MessageBox.Show(this, output, "Detailed Information", System.Windows.MessageBoxButton.OK);
-		}
-
-		private void OpenMemberOf(object sender, RoutedEventArgs e)
-		{
-			PSPropertyInfo[] thing1 = adUser.Properties.ToArray();
-			foreach (PSPropertyInfo thing2 in thing1)
-			{
-				if (thing2.Value != null)
-				{
-					Debug.WriteLine(thing2.Name.ToString()+" "+thing2.Value.ToString());
-				}
-			}
 		}
 	}
 }
