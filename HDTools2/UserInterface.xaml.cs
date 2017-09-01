@@ -119,5 +119,10 @@ namespace HDTools2
 			this.Close();
 			newWindow.Show();
 		}
+
+		private void CopyUsername(object sender, RoutedEventArgs e)
+		{
+			Clipboard.SetText(mainDetails["username"]);
+		}
 	}
 }

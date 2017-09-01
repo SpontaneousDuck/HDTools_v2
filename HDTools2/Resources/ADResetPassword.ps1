@@ -29,7 +29,11 @@ function GetWITUserByID
 {
     $id=$args[0]
     $user = Get-ADUser -Filter "EmployeeID -like ""$id""" -properties *
-    return $user
+	if ($user)
+	{
+		return $user
+	}
+	return $null
 }
 function GetWITUserByLastFirst
 {
