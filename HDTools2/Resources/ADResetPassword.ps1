@@ -24,6 +24,7 @@ function ResetUserPassword
     $newPassword = "WIT1$"+$WIDlastsix
     $newPasswordSecure = ConvertTo-SecureString $newPassword -AsPlainText -Force
     Set-ADAccountPassword -identity $user -NewPassword $newPasswordSecure -Reset
+	Set-ADUser -identity $user -ChangePasswordAtNextLogon $true
 }
 function GetWITUserByID 
 {

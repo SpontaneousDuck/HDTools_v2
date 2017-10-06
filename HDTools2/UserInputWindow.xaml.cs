@@ -86,7 +86,7 @@ namespace HDTools2
 			}
 			LoadPercent = 30;
 			DebugStatus = "ActiveDirectory module loaded";
-
+			
 			string getUserCommand = "GetWITUser " + s;
 			PowerShellInstance.AddScript(getUserCommand);
 			// invoke execution on the pipeline (collecting output)
