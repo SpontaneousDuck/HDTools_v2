@@ -18,6 +18,7 @@ using System.DirectoryServices.AccountManagement;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.DirectoryServices;
+using System.ComponentModel;
 
 namespace HDTools2
 {
@@ -45,7 +46,9 @@ namespace HDTools2
 		}
 		public UserInputWindow()
 		{
-			(new Thread(new ThreadStart(PreparePowerShellInstance))).Start(); //Starts the preparation for the powershell commands
+            Thread preparationThread = new Thread(new ThreadStart(PreparePowerShellInstance));
+            preparationThread.IsBackground = true;
+            preparationThread.Start(); //Starts the preparation for the powershell commands
 			InitializeComponent();
 			LoadPercent = 0;
 			DebugStatus = "Please enter a username.";
@@ -75,6 +78,7 @@ namespace HDTools2
 			Thread userEnteredThread = new Thread(() => UserEntered(username));
 			//userEnteredThread.SetApartmentState(ApartmentState.STA);
 			userEnteredThread.Start();
+            //Thread.CurrentThread.Join(); //Really not sure about this
 		}
 		private void UserEntered(string s)
 		{
@@ -126,7 +130,18 @@ namespace HDTools2
 		private void OpenAD(object sender, RoutedEventArgs e)
 		{
 			System.Diagnostics.Process.Start(@"C:\Windows\system32\dsa.msc");
-			//this.Close();
-		}
-	}
+            //this.Close();
+        }
+
+        private void Button_Click_1(object sender, RoutedEventArgs e)
+        {
+            System.Diagnostics.Process proc = new System.Diagnostics.Process();
+            proc.StartInfo.FileName = "mailto:pittss@wit.edu?subject=HDT2Bug&body=Please_describe_your_bug";
+            proc.Start();
+        }
+        /*void UserInputWindow_Closing(object sender, CancelEventArgs e)
+{
+
+}*/
+    }
 }

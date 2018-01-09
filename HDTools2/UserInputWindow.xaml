@@ -21,5 +21,6 @@
         <ProgressBar x:Name="loadingBar" HorizontalAlignment="Left" Height="10" Margin="10,70,0,-50" Grid.Row="1" VerticalAlignment="Top" Width="472"/>
         <Button x:Name="aboutButton" Content="?" HorizontalAlignment="Left" VerticalAlignment="Top" Width="17" Margin="455,5,0,0" Click="ShowAboutInfo"/>
         <Button x:Name="activeDirectoryButton" Content="Open AD" HorizontalAlignment="Left" VerticalAlignment="Top" Width="66" Margin="372,1,0,0" Grid.Row="1" Height="19" FontSize="8" Click="OpenAD"/>
+        <Button Content="Report Bug" HorizontalAlignment="Left" Margin="407,45,0,-25" VerticalAlignment="Top" Width="75" Grid.Row="1" Click="Button_Click_1"/>
     </Grid>
 </Window>

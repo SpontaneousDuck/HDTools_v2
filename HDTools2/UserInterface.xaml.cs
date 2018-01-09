@@ -124,5 +124,12 @@ namespace HDTools2
 		{
 			Clipboard.SetText(mainDetails["username"]);
 		}
-	}
+
+        private void Button_Click_1(object sender, RoutedEventArgs e)
+        {
+            System.Diagnostics.Process proc = new System.Diagnostics.Process();
+            proc.StartInfo.FileName = "mailto:pittss@wit.edu?subject=HDT2Bug&body=Please_describe_your_bug";
+            proc.Start();
+        }
+    }
 }

@@ -43,6 +43,7 @@
         <Image x:Name="Picture" Grid.Row="3" Grid.Column="2" Height="100" Width="100" VerticalAlignment="Top" HorizontalAlignment="Left"/>
         <Button x:Name="BackButton" Content="Back" HorizontalAlignment="Left" VerticalAlignment="Top" Width="43" Grid.Column="2" Margin="143,71,0,0" Grid.Row="3" Click="BackToInput"/>
         <Button x:Name="CopyUsernameButton" Content="Copy username" HorizontalAlignment="Left" VerticalAlignment="Top" Width="100" Grid.Column="1" Margin="0,70,0,0" Grid.Row="3" Click="CopyUsername"/>
+        <Button Content="Report Bug" HorizontalAlignment="Left" Margin="111,18,0,0" VerticalAlignment="Top" Width="75" Grid.Row="3" Click="Button_Click_1" Grid.Column="2"/>
 
     </Grid>
 </Window>
