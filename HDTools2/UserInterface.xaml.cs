@@ -15,6 +15,7 @@ using System.Diagnostics;
 using System.Management.Automation;
 using System.Collections.ObjectModel;
 
+
 namespace HDTools2
 {
 	/// <summary>
@@ -96,7 +97,7 @@ namespace HDTools2
 
 		private void DetailsButtonClicked(object sender, RoutedEventArgs e)
 		{
-			string[] props = {"DisplayName","Created","EmailAddress","EmployeeID","Enabled","LastBadPasswordAttempt","LastLogonDate","LockedOut","LogonCount","Modified","MemberOf","PasswordExpired","PasswordLastSet","Title"};
+			string[] props = {"DisplayName","Created","EmailAddress","EmployeeID","Enabled","LastBadPasswordAttempt","LastLogonDate","LockedOut","LogonCount","Modified",/*"MemberOf",*/"PasswordExpired","PasswordLastSet","Title"};
 
 			string output = "";
 			var x = adUser.Properties.ToArray();
@@ -130,6 +131,27 @@ namespace HDTools2
             System.Diagnostics.Process proc = new System.Diagnostics.Process();
             proc.StartInfo.FileName = "mailto:pittss@wit.edu?subject=HDT2Bug&body=Please_describe_your_bug";
             proc.Start();
+        }
+
+        private void Button_Click(object sender, RoutedEventArgs e)
+        {
+            string output = "";
+            PSMemberInfoCollection<PSPropertyInfo> props = adUser.Properties;
+            PSPropertyInfo propMem = props["MemberOf"];
+            object propMemVal = propMem.Value;
+            //ADPropertyValueCollection 
+            System.Collections.CollectionBase x = propMemVal as System.Collections.CollectionBase;
+            //Type t = propMemVal.GetType();
+            //MessageBoxResult messageBoxResult1 = System.Windows.MessageBox.Show(this, t.ToString(), "Member Groups", System.Windows.MessageBoxButton.OK);
+            //Array x = propMemVal as Array;
+            
+            foreach (var memberGroup in x)
+            {
+                string memberString = memberGroup as string;
+                string memberStringReduced = memberString.Substring(memberString.IndexOf('=')+1, memberString.IndexOf(',')-3);
+                output += memberStringReduced + "\n";
+            }
+            MessageBoxResult messageBoxResult = System.Windows.MessageBox.Show(this, output, "Member Groups", System.Windows.MessageBoxButton.OK);
         }
     }
 }
